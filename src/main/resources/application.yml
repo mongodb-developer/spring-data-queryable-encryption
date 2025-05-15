@@ -1,0 +1,10 @@
+app:
+  mongodb:
+    uri: ${MONGODB_URI}
+    keyVaultNamespace: encryption.__keyVault
+    encryptedDatabaseName: hrsystem
+    encryptedCollectionName: employee
+    cryptSharedLibPath: <PATH_TO_LIB>
+logging:
+  level:
+    org.springframework.data.mongodb: DEBUG

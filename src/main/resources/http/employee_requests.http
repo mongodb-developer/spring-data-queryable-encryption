@@ -1,0 +1,20 @@
+### Get request
+GET http://localhost:8080/employee
+
+### Get employees with salary greater than 10000
+GET http://localhost:8080/employee/salaryGreaterThan?amount=20000
+
+
+### Get employees with salary less than 10000
+GET http://localhost:8080/employee/salaryLessThan?amount=10000
+
+### Post request
+POST http://localhost:8080/employee
+Content-Type: application/json
+
+{
+  "nationalId": "3",
+  "name": "Thais",
+  "age": 32,
+  "salary": 7500.30
+}
