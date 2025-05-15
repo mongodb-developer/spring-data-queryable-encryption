@@ -93,7 +93,7 @@ public class MongoConfig implements ApplicationRunner {
         }
     }
 
-    private void springDataEncryptedCollection(MongoTemplate mongoTemplate) {
+    private void withSpringDataEncryptedCollection(MongoTemplate mongoTemplate) {
         CollectionOptions collectionOptions = CollectionOptions.encryptedCollection(options -> options
                 .queryable(encrypted(string("nationalId")).algorithm("Indexed").keyId(UUID.randomUUID()), equality().contention(0))
                 .queryable(encrypted(int32("age")).algorithm("Range").keyId(UUID.randomUUID()), range().contention(8).min(0).max(150))
