@@ -78,7 +78,6 @@ public class MongoConfig implements ApplicationRunner {
             CreateCollectionOptions createCollectionOptions = new CreateCollectionOptions().encryptedFields(getEncryptedFields());
 
             try {
-               //withSpringDataEncryptedCollection();
 
                 clientEncryption.createEncryptedCollection(
                         mongoClient().getDatabase(encryptedDatabaseName),
