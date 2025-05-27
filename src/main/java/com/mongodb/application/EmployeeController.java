@@ -1,5 +1,7 @@
-package com.mongodb;
+package com.mongodb.application;
 
+import com.mongodb.domain.Employee;
+import com.mongodb.domain.EmployeeService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

@@ -1,9 +1,15 @@
-package com.mongodb;
+package com.mongodb.resources;
 
+import com.mongodb.AutoEncryptionSettings;
+import com.mongodb.ClientEncryptionSettings;
+import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.vault.ClientEncryption;
 import com.mongodb.client.vault.ClientEncryptions;
+import com.mongodb.domain.Employee;
+import com.mongodb.domain.LocalCMKService;
 import org.bson.BsonBinary;
 import org.bson.UuidRepresentation;
 import org.springframework.beans.factory.annotation.Value;

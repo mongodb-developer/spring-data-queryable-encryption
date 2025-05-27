@@ -4,8 +4,8 @@ Content-Type: application/json
 
 {
   "nationalId": "4",
-  "name": "Maria",
-  "age": 57,
+  "name": "Ricardo",
+  "age": 36,
   "salary": 130
 }
 

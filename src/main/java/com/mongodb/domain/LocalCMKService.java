@@ -1,4 +1,4 @@
-package com.mongodb;
+package com.mongodb.domain;
 
 import org.springframework.stereotype.Service;
 
