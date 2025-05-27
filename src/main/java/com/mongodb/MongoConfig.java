@@ -112,25 +112,4 @@ public class MongoConfig implements ApplicationRunner {
                 .extraOptions(extraOptions)
                 .build();
     }
-
-    private static BsonDocument getEncryptedFields() {
-        return new BsonDocument().append("fields",
-                new BsonArray(Arrays.asList(
-                        new BsonDocument()
-                                .append("keyId", new BsonNull())
-                                .append("path", new BsonString("nationalId"))
-                                .append("bsonType", new BsonString("string"))
-                                .append("queries", new BsonDocument()
-                                        .append("queryType", new BsonString("equality"))),
-                        new BsonDocument()
-                                .append("keyId", new BsonNull())
-                                .append("path", new BsonString("salary"))
-                                .append("bsonType", new BsonString("double"))
-                                .append("queries", new BsonDocument()
-                                        .append("queryType", new BsonString("range"))),
-                        new BsonDocument()
-                                .append("keyId", new BsonNull())
-                                .append("path", new BsonString("age"))
-                                .append("bsonType", new BsonString("int")))));
-    }
 }
