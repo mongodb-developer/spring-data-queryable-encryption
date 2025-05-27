@@ -2,11 +2,10 @@ package com.mongodb;
 
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
-import com.mongodb.client.model.CreateCollectionOptions;
-import com.mongodb.client.model.CreateEncryptedCollectionParams;
 import com.mongodb.client.vault.ClientEncryption;
 import com.mongodb.client.vault.ClientEncryptions;
-import org.bson.*;
+import org.bson.BsonBinary;
+import org.bson.UuidRepresentation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -17,10 +16,9 @@ import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import static org.springframework.data.mongodb.core.schema.JsonSchemaProperty.*;
 import static org.springframework.data.mongodb.core.schema.QueryCharacteristics.equality;
@@ -64,31 +62,29 @@ public class MongoConfig implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
         var mongoTemplate = mongoTemplate(mongoClient());
-        if (! mongoTemplate.collectionExists(encryptedCollectionName)) {
 
-            ClientEncryptionSettings clientEncryptionSettings = ClientEncryptionSettings.builder()
+        if (mongoTemplate.collectionExists(encryptedCollectionName)) {
+            return;
+        }
+
+        ClientEncryptionSettings encryptionSettings = ClientEncryptionSettings.builder()
                 .keyVaultMongoClientSettings(MongoClientSettings.builder()
-                        .applyConnectionString(new ConnectionString(uri))
+                        .applyConnectionString(new com.mongodb.ConnectionString(uri))
                         .build())
                 .keyVaultNamespace(keyVaultNamespace)
                 .kmsProviders(kmsProviderCredentials)
                 .build();
 
-            ClientEncryption clientEncryption = ClientEncryptions.create(clientEncryptionSettings);
-            CreateCollectionOptions createCollectionOptions = new CreateCollectionOptions().encryptedFields(getEncryptedFields());
+        try (ClientEncryption clientEncryption = ClientEncryptions.create(encryptionSettings)) {
+            BsonBinary dataKeyId = clientEncryption.createDataKey("local", new com.mongodb.client.model.vault.DataKeyOptions().keyAltNames(List.of("name")));
+            BsonBinary dataKeyId2 = clientEncryption.createDataKey("local", new com.mongodb.client.model.vault.DataKeyOptions().keyAltNames(List.of("age")));
 
-            try {
+            CollectionOptions collectionOptions = CollectionOptions.encryptedCollection(options -> options
+                    .queryable(encrypted(string("name")).algorithm("Indexed").keyId(dataKeyId.asUuid()), equality().contention(0))
+                    .queryable(encrypted(int32("age")).algorithm("Range").keyId(dataKeyId2.asUuid()), range().contention(0).min(0).max(130))
+            );
 
-                clientEncryption.createEncryptedCollection(
-                        mongoClient().getDatabase(encryptedDatabaseName),
-                        encryptedCollectionName,
-                        createCollectionOptions,
-                        new CreateEncryptedCollectionParams("local").masterKey(new BsonDocument()));
-            }
-
-            catch (Exception e) {
-                throw new Exception(e.getMessage());
-            }
+            mongoTemplate.createCollection(Employee.class, collectionOptions);
         }
     }
 
