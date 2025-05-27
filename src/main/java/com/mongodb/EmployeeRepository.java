@@ -8,6 +8,6 @@ import java.util.List;
 @RestController
 public interface EmployeeRepository extends MongoRepository<Employee, String> {
 
-    List<Employee> findBySalaryLessThan(double amount);
+    List<Employee> findByAgeGreaterThan(int age);
 
 }

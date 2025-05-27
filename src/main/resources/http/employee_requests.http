@@ -1,20 +1,16 @@
-### Get request
-GET http://localhost:8080/employee
-
-### Get employees with salary greater than 10000
-GET http://localhost:8080/employee/salaryGreaterThan?amount=20000
-
-
-### Get employees with salary less than 10000
-GET http://localhost:8080/employee/salaryLessThan?amount=10000
-
-### Post request
-POST http://localhost:8080/employee
+### Post request - Create a new employee
+POST http://localhost:8080/employees
 Content-Type: application/json
 
 {
-  "nationalId": "3",
-  "name": "Thais",
-  "age": 32,
-  "salary": 7500.30
+  "nationalId": "4",
+  "name": "Maria",
+  "age": 57,
+  "salary": 130
 }
+
+### Get request - Find All employees
+GET http://localhost:8080/employees
+
+### Get request - Find All employees where age is greater than 50
+GET http://localhost:8080/employees/ages/greater-than?age=50

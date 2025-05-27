@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/employee")
+@RequestMapping("/employees")
 public class EmployeeController {
 
     private final EmployeeService employeeService;
@@ -22,17 +22,11 @@ public class EmployeeController {
 
     @GetMapping
     public ResponseEntity<List<Employee>> findAll() {
-
         return ResponseEntity.ok(employeeService.findAll());
     }
 
-    @GetMapping("/salaryLessThan")
-    public ResponseEntity<List<Employee>> findBySalaryLessThan(@RequestParam double amount) {
-        return ResponseEntity.ok(employeeService.findBySalaryLessThan(amount));
-    }
-
-    @GetMapping("/salaryGreaterThan")
-    public ResponseEntity<List<Employee>> salaryGreaterThan(@RequestParam double amount) {
-        return ResponseEntity.ok(employeeService.findBySalaryGreaterThan(amount));
+    @GetMapping("/ages/greater-than")
+    public ResponseEntity<List<Employee>> findByAgeGreaterThan(@RequestParam int age) {
+        return ResponseEntity.ok(employeeService.findByAgeGreaterThan(age));
     }
 }

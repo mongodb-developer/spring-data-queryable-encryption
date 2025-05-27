@@ -14,32 +14,25 @@ public class EmployeeService {
 
     private static final Logger logger = LoggerFactory.getLogger(EmployeeService.class);
 
-    private final MongoOperations mongoOperations;
-    private final EmployeeRepository employeeRepository;
+     private final EmployeeRepository employeeRepository;
 
-    public EmployeeService(MongoOperations mongoOperations, EmployeeRepository employeeRepository) {
-        this.mongoOperations = mongoOperations;
-        this.employeeRepository = employeeRepository;
+    public EmployeeService(EmployeeRepository employeeRepository) {
+         this.employeeRepository = employeeRepository;
     }
 
     public Employee createEmployee(Employee employee) {
         logger.info("Creating employee {}", employee);
-         return mongoOperations.save(employee);
+         return employeeRepository.save(employee);
      }
 
     public List<Employee> findAll() {
        logger.info("Finding all employee ");
-       return mongoOperations.findAll(Employee.class);
+       return employeeRepository.findAll();
     }
 
-    public List<Employee> findBySalaryGreaterThan(double amount) {
-        logger.info("<MONGO TEMPLATE> Finding all employee where salary is greater than {} ", amount);
-        return mongoOperations.find(new Query().addCriteria(Criteria.where("salary").gt(amount)), Employee.class);
-    }
-
-    public List<Employee> findBySalaryLessThan(double amount) {
-        logger.info("<MONGO REPOSITORY> Finding all employee where salary is less than {} ", amount);
-        return employeeRepository.findBySalaryLessThan(amount);
+    public List<Employee> findByAgeGreaterThan(int age) {
+        logger.info("Finding all employee where age is greater than {} ", age);
+        return employeeRepository.findByAgeGreaterThan(age);
     }
 }
 
