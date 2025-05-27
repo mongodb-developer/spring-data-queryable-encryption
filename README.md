@@ -13,21 +13,14 @@ The project includes sample code for:
 - Java 17 or higher (tested with Corretto 21)
 - Maven
 - MongoDB 8.0+ with Queryable Encryption support
-- MongoDB crypt_shared library -> [`Automatic Encryption Lib`](https://www.mongodb.com/docs/v6.0/core/queryable-encryption/reference/shared-library/#download-the-automatic-encryption-shared-library)
+- MongoDB crypt_shared library -> [`Dowload the Automatic Encryption Shared Library`](https://www.mongodb.com/docs/v6.0/core/queryable-encryption/reference/shared-library/#download-the-automatic-encryption-shared-library)
 
 ## Running the Application
 
-You can run the application in two ways:
-
-### 1. Using IntelliJ or your IDE
-
-- Open the project.
-- Run the `SpringDataQueryableEncryptionApplication.java` class.
-
-### 2. Using terminal Gradle
+Open your terminal and run:
 
 ```bash
-export MONGODB_URI="<YOUR_CONNECTION_STRING>" CRYPT_PATH="<PATH/TO/LIB/>"
+export MONGODB_URI="<YOUR_CONNECTION_STRING>" CRYPT_PATH="<PATH_TO_AUTOMATIC_ENC_SHA_LIB>"
 mvn spring-boot:run
 ```
 
