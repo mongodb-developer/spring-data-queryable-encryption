@@ -8,11 +8,11 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class EmployeeService {
+public class EmployeeService  {
 
     private static final Logger logger = LoggerFactory.getLogger(EmployeeService.class);
 
-     private final EmployeeRepository employeeRepository;
+    private final EmployeeRepository employeeRepository;
 
     public EmployeeService(EmployeeRepository employeeRepository) {
          this.employeeRepository = employeeRepository;
