@@ -39,9 +39,6 @@ public class MongoConfig implements ApplicationRunner {
     @Value("${app.mongodb.encryptedDatabaseName}")
     private String encryptedDatabaseName;
 
-    @Value("${app.mongodb.cryptSharedLibPath}")
-    private String cryptSharedLibPath;
-
     @Value("${app.mongodb.keyVaultNamespace}")
     private String keyVaultNamespace;
 
@@ -68,6 +65,10 @@ public class MongoConfig implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
         var mongoTemplate = mongoTemplate(mongoClient());
+
+
+//        mongoClient().getDatabase("encryption").drop();
+//        mongoClient().getDatabase("hrsystem").drop();
 
         if (mongoTemplate.collectionExists(encryptedCollectionName)) {
             return;
@@ -105,13 +106,9 @@ public class MongoConfig implements ApplicationRunner {
     private AutoEncryptionSettings getAutoEncryptionSettings() throws IOException {
         kmsProviderCredentials = localCMKService.getKmsProviderCredentials();
 
-        Map<String, Object> extraOptions = new HashMap<>();
-        extraOptions.put("cryptSharedLibPath", cryptSharedLibPath);
-
         return AutoEncryptionSettings.builder()
                 .keyVaultNamespace(keyVaultNamespace)
                 .kmsProviders(kmsProviderCredentials)
-                .extraOptions(extraOptions)
                 .build();
     }
 }
