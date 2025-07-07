@@ -18,10 +18,14 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.core.CollectionOptions;
+import org.springframework.data.mongodb.core.MongoJsonSchemaCreator;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
+import org.springframework.data.mongodb.core.schema.MongoJsonSchema;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,9 +70,8 @@ public class MongoConfig implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
         var mongoTemplate = mongoTemplate(mongoClient());
 
-
-//        mongoClient().getDatabase("encryption").drop();
-//        mongoClient().getDatabase("hrsystem").drop();
+        mongoClient().getDatabase("encryption").drop();
+        mongoClient().getDatabase("hrsystem").drop();
 
         if (mongoTemplate.collectionExists(encryptedCollectionName)) {
             return;
@@ -83,16 +86,30 @@ public class MongoConfig implements ApplicationRunner {
                 .build();
 
         try (ClientEncryption clientEncryption = ClientEncryptions.create(encryptionSettings)) {
-            BsonBinary dataKeyId = clientEncryption.createDataKey("local", new com.mongodb.client.model.vault.DataKeyOptions().keyAltNames(List.of("name")));
-            BsonBinary dataKeyId2 = clientEncryption.createDataKey("local", new com.mongodb.client.model.vault.DataKeyOptions().keyAltNames(List.of("age")));
-
-            CollectionOptions collectionOptions = CollectionOptions.encryptedCollection(options -> options
-                    .queryable(encrypted(string("name")).algorithm("Indexed").keyId(dataKeyId.asUuid()), equality().contention(0))
-                    .queryable(encrypted(int32("age")).algorithm("Range").keyId(dataKeyId2.asUuid()), range().contention(0).min(0).max(130))
-            );
-
-            mongoTemplate.createCollection(Employee.class, collectionOptions);
+//            manualCollectionSetup(clientEncryption, mongoTemplate);
+            derivedCollection(mongoTemplate);
         }
+    }
+
+    private void derivedCollection(MongoOperations mongoTemplate) {
+
+        MongoJsonSchema employeeSchema = MongoJsonSchemaCreator.create(new MongoMappingContext())
+                .filter(MongoJsonSchemaCreator.encryptedOnly())
+                .createSchemaFor(Employee.class);
+
+        CollectionOptions collectionOptions = CollectionOptions.encryptedCollection(employeeSchema);
+
+        mongoTemplate.createCollection(Employee.class, collectionOptions);
+    }
+
+    private void manualCollectionSetup(ClientEncryption clientEncryption, MongoOperations mongoTemplate) {
+        BsonBinary dkSalary = clientEncryption.createDataKey("local", new com.mongodb.client.model.vault.DataKeyOptions());
+
+        CollectionOptions collectionOptions = CollectionOptions.encryptedCollection(options -> options
+                .queryable(encrypted(float64("salary")).algorithm("Range").keyId(dkSalary.asUuid()), range().contention(0).precision(2).min(0.0).max(9999999.0))
+        );
+
+        mongoTemplate.createCollection(Employee.class, collectionOptions);
     }
 
     private MongoClientSettings getMongoClientSettings() throws IOException {

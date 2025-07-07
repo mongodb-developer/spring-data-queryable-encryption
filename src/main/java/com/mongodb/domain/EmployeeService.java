@@ -32,6 +32,11 @@ public class EmployeeService  {
         logger.info("Finding all employee where age is greater than {} ", age);
         return employeeRepository.findByAgeGreaterThan(age);
     }
+
+    public List<Employee> findBySalaryGreaterThan(double salary) {
+        logger.info("Finding all employee where salary is greater than {}", salary);
+        return employeeRepository.findBySalaryGreaterThan(salary);
+    }
 }
 
 

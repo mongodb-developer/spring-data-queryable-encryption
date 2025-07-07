@@ -3,10 +3,9 @@ POST http://localhost:8080/employees
 Content-Type: application/json
 
 {
-  "nationalId": "4",
-  "name": "Ricardo",
-  "age": 36,
-  "salary": 130
+  "name": "Pedro",
+  "age": 33,
+  "salary": 22000.6
 }
 
 ### Get request - Find All employees
@@ -14,3 +13,9 @@ GET http://localhost:8080/employees
 
 ### Get request - Find All employees where age is greater than 50
 GET http://localhost:8080/employees/ages/greater-than?age=50
+
+### Get request
+GET http://localhost:8080/employees/salary/greater-than?salary=12500.0
+
+
+

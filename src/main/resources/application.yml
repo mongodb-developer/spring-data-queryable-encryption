@@ -4,7 +4,6 @@ app:
     keyVaultNamespace: encryption.__keyVault
     encryptedDatabaseName: hrsystem
     encryptedCollectionName: employee
-    cryptSharedLibPath: ${CRYPT_PATH}
 logging:
   level:
     org.springframework.data.mongodb: DEBUG
