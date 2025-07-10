@@ -37,6 +37,16 @@ public class EmployeeService  {
         logger.info("Finding all employee where salary is greater than {}", salary);
         return employeeRepository.findBySalaryGreaterThan(salary);
     }
+
+    public Employee findBySsn(int ssn) {
+        logger.info("Finding employee by ssn {}", ssn);
+        return employeeRepository.findBySsn(ssn);
+    }
+
+    public Employee findByPin(String pin) {
+        logger.info("Finding employee by pin {}", pin);
+        return employeeRepository.findByPin(pin);
+    }
 }
 
 

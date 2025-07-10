@@ -10,5 +10,8 @@ import java.util.List;
 public interface EmployeeRepository extends MongoRepository<Employee, String> {
 
     List<Employee> findByAgeGreaterThan(int age);
+    Employee findBySsn(int ssn);
     List<Employee> findBySalaryGreaterThan(double salary);
+
+    Employee findByPin(String pin);
 }

@@ -3,19 +3,25 @@ POST http://localhost:8080/employees
 Content-Type: application/json
 
 {
-  "name": "Pedro",
-  "age": 33,
-  "salary": 22000.6
+  "name": "Joao",
+  "pin": "002",
+  "ssn": 2,
+  "age": 59,
+  "salary": 3200
 }
 
 ### Get request - Find All employees
 GET http://localhost:8080/employees
 
+
+### Get request - Find By PIN
+GET http://localhost:8080/employees/pin?pin=001
+
+### Get request - Find By SSN
+GET http://localhost:8080/employees/ssn?ssn=001
+
 ### Get request - Find All employees where age is greater than 50
-GET http://localhost:8080/employees/ages/greater-than?age=50
+GET http://localhost:8080/employees/ages/greater-than?age=55
 
-### Get request
-GET http://localhost:8080/employees/salary/greater-than?salary=12500.0
-
-
-
+### Get request - Find All employee where salary is greater than x
+GET http://localhost:8080/employees/salary/greater-than?salary=1500.0
