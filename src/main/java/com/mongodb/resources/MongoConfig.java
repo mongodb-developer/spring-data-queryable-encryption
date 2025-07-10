@@ -1,16 +1,13 @@
 package com.mongodb.resources;
 
-import com.mongodb.AutoEncryptionSettings;
-import com.mongodb.ClientEncryptionSettings;
-import com.mongodb.ConnectionString;
-import com.mongodb.MongoClientSettings;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-import com.mongodb.client.vault.ClientEncryption;
-import com.mongodb.client.vault.ClientEncryptions;
-import com.mongodb.domain.Employee;
-import com.mongodb.domain.LocalCMKService;
+import static org.springframework.data.mongodb.core.schema.JsonSchemaProperty.*;
+import static org.springframework.data.mongodb.core.schema.QueryCharacteristics.*;
+
+import java.io.IOException;
+import java.util.Map;
+
 import org.bson.BsonBinary;
+import org.bson.Document;
 import org.bson.UuidRepresentation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
@@ -24,15 +21,18 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
 import org.springframework.data.mongodb.core.schema.MongoJsonSchema;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.springframework.data.mongodb.core.schema.JsonSchemaProperty.*;
-import static org.springframework.data.mongodb.core.schema.QueryCharacteristics.equality;
-import static org.springframework.data.mongodb.core.schema.QueryCharacteristics.range;
+import com.mongodb.AutoEncryptionSettings;
+import com.mongodb.ClientEncryptionSettings;
+import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientSettings;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.model.CreateCollectionOptions;
+import com.mongodb.client.model.CreateEncryptedCollectionParams;
+import com.mongodb.client.vault.ClientEncryption;
+import com.mongodb.client.vault.ClientEncryptions;
+import com.mongodb.domain.Employee;
+import com.mongodb.domain.LocalCMKService;
 
 @Configuration
 public class MongoConfig implements ApplicationRunner {
@@ -87,19 +87,23 @@ public class MongoConfig implements ApplicationRunner {
 
         try (ClientEncryption clientEncryption = ClientEncryptions.create(encryptionSettings)) {
 //            manualCollectionSetup(clientEncryption, mongoTemplate);
-            derivedCollection(mongoTemplate);
+            derivedCollection(mongoTemplate, clientEncryption);
         }
     }
 
-    private void derivedCollection(MongoOperations mongoTemplate) {
+    private void derivedCollection(MongoOperations template, ClientEncryption clientEncryption) {
 
         MongoJsonSchema employeeSchema = MongoJsonSchemaCreator.create(new MongoMappingContext())
                 .filter(MongoJsonSchemaCreator.encryptedOnly())
                 .createSchemaFor(Employee.class);
 
-        CollectionOptions collectionOptions = CollectionOptions.encryptedCollection(employeeSchema);
+        Document encryptedFields = CollectionOptions.encryptedCollection(employeeSchema)
+                .getEncryptedFieldsOptions()
+                .map(CollectionOptions.EncryptedFieldsOptions::toDocument)
+                .orElseThrow();
 
-        mongoTemplate.createCollection(Employee.class, collectionOptions);
+        template.execute(db -> clientEncryption.createEncryptedCollection(db, template.getCollectionName(Employee.class), new CreateCollectionOptions()
+				.encryptedFields(encryptedFields), new CreateEncryptedCollectionParams("local")));
     }
 
     private void manualCollectionSetup(ClientEncryption clientEncryption, MongoOperations mongoTemplate) {
