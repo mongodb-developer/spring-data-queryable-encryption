@@ -4,6 +4,7 @@ import static org.springframework.data.mongodb.core.schema.JsonSchemaProperty.*;
 import static org.springframework.data.mongodb.core.schema.QueryCharacteristics.*;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.bson.BsonBinary;
@@ -36,6 +37,9 @@ import com.mongodb.domain.LocalCMKService;
 
 @Configuration
 public class MongoConfig implements ApplicationRunner {
+
+    @Value("${app.mongodb.cryptSharedLibPath}")
+    private String cryptSharedLibPath;
 
     @Value("${app.mongodb.encryptedCollectionName}")
     private String encryptedCollectionName;
@@ -129,7 +133,14 @@ public class MongoConfig implements ApplicationRunner {
 
         return AutoEncryptionSettings.builder()
                 .keyVaultNamespace(keyVaultNamespace)
+                .extraOptions(createExtraOptions())
                 .kmsProviders(kmsProviderCredentials)
                 .build();
+    }
+
+    private Map<String, Object> createExtraOptions() {
+        Map<String, Object> extraOptions = new HashMap<>();
+        extraOptions.put("cryptSharedLibPath", cryptSharedLibPath);
+        return extraOptions;
     }
 }

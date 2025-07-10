@@ -1,6 +1,7 @@
 app:
   mongodb:
     uri: ${MONGODB_URI}
+    cryptSharedLibPath: ${CRYPT_PATH}
     keyVaultNamespace: encryption.__keyVault
     encryptedDatabaseName: hrsystem
     encryptedCollectionName: employee
