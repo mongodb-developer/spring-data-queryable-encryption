@@ -12,22 +12,21 @@ This is a sample **Spring Boot** application that stores and retrieves employee 
 - Encrypt fields using annotations (`@Encrypted`, `@RangeEncrypted` and `@Queryable`)
 - Run equality and range queries securely on encrypted data
 
+### Encrypted Fields Summary
+| Field | Type     | Encrypted | Queryable | Query Type     | Notes                                                  |
+|-------|----------|---------|-----------|----------------|---------------------------------------------------------|
+| name  | String   | No      | Yes         | Equality       | Not encrypted; can be queried freely                   |
+| pin  | String   | Yes     | No       | —              | Encrypted but not queryable     |
+| ssn  | int      | Yes       | Yes       | Equality       | Encrypted and queryable using equality (`@Queryable`)  |
+| age   | Integer  | Yes        | Yes       | Range (int)    | Encrypted and queryable with range filters (`<`, `>`)  |
+| salary | double   | Yes        | Yes       | Range (decimal)| Encrypted and queryable with decimal range (precision: 2) |
+
 Below is a visual representation of how encrypted documents appear in **MongoDB Compass**:
 
-![Encrypted Document in Compass](docs/img/compass.png)
+<img src="docs/img/compass.png" alt="Encrypted Document in Compass" width="500"/>
 
 > Encrypted fields (`pin`, `ssn`, `age` and `salary`)
-
-### Encrypted Fields Summary
-
-| Field    | Type     | Encrypted | Queryable | Query Type     | Notes                                                  |
-|----------|----------|-----------|-----------|----------------|---------------------------------------------------------|
-| `name`   | String   | ❌        | ✅         | Equality       | Not encrypted; can be queried freely                   |
-| `pin`    | String   | ✅        | ❌         | —              | Encrypted but not queryable     |
-| `ssn`    | int      | ✅        | ✅         | Equality       | Encrypted and queryable using equality (`@Queryable`)  |
-| `age`    | Integer  | ✅        | ✅         | Range (int)    | Encrypted and queryable with range filters (`<`, `>`)  |
-| `salary` | double   | ✅        | ✅         | Range (decimal)| Encrypted and queryable with decimal range (precision: 2) |
-
+> 
 ## Prerequisites
 Before running this project, make sure you have:
 
