@@ -1,4 +1,4 @@
-package com.mongodb.resources;
+package com.mongodb.config;
 
 import static org.springframework.data.mongodb.core.schema.JsonSchemaProperty.*;
 import static org.springframework.data.mongodb.core.schema.QueryCharacteristics.*;

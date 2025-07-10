@@ -1,4 +1,4 @@
-package com.mongodb.application;
+package com.mongodb.http;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
