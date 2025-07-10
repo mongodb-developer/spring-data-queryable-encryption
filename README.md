@@ -7,12 +7,10 @@ You can read more on
 
 ## About the Project
 
-This is a sample **Spring Boot** application that stores and retrieves employee records using **MongoDB Queryable Encryption**.  
-It showcases how to:
+This is a sample **Spring Boot** application that stores and retrieves employee records using **MongoDB Queryable Encryption**. It showcases how to:
 
-- Encrypt fields using annotations (`@Encrypted`, `@RangeEncrypted`)
+- Encrypt fields using annotations (`@Encrypted`, `@RangeEncrypted` and `@Queryable`)
 - Run equality and range queries securely on encrypted data
-- Integrate with Swagger for API testing
 
 The result is a secure document model where sensitive fields (like `ssn`, `pin`, `salary`, etc.) are encrypted and a typical query result looks like this:
 
@@ -42,9 +40,13 @@ Before running this project, make sure you have:
 
 ```bash
 git clone https://github.com/mongodb-developer/spring-data-queryable-encryption.git
+
+cd spring-data-queryable-encryption
 ```
 
 ### 2. Set Environments
+
+Make sure you're inside the project folder spring-data-queryable-encryption before running the next steps.
 
 On Linux/macOS:
 ````
@@ -53,7 +55,7 @@ export MONGODB_URI="<YOUR_CONNECTION_STRING>" CRYPT_PATH="<PATH_TO_AUTOMATIC_ENC
 ````
 On Windows
 ````
-$env:MONGODB_URI="<YOUR_CONNECTION_STRING>"; $env:CRYPT_PATH="<PATH_TO_AUTOMATIC_ENC_SHA_LIB.DLL"
+$env:MONGODB_URI="<YOUR_CONNECTION_STRING>"; $env:CRYPT_PATH="<PATH_TO_AUTOMATIC_ENC_SHA_LIB.dll"
 ````
 ### 3. Run the application
 
