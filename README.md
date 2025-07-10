@@ -12,8 +12,13 @@ This is a sample **Spring Boot** application that stores and retrieves employee 
 - Encrypt fields using annotations (`@Encrypted`, `@RangeEncrypted` and `@Queryable`)
 - Run equality and range queries securely on encrypted data
 
-The result is a secure document model where sensitive fields (like `ssn`, `pin`, `salary`, etc.) are encrypted and a typical query result looks like this:
+Below is a visual representation of how encrypted documents appear in **MongoDB Compass**:
 
+![Encrypted Document in Compass](docs/img/compass.png)
+
+> Encrypted fields (`pin`, `ssn`, `age` and `salary`)
+
+### Encrypted Fields Summary
 
 | Field    | Type     | Encrypted | Queryable | Query Type     | Notes                                                  |
 |----------|----------|-----------|-----------|----------------|---------------------------------------------------------|
