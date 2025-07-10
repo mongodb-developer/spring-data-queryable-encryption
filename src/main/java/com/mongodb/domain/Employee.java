@@ -1,10 +1,12 @@
 package com.mongodb.domain;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Encrypted;
 import org.springframework.data.mongodb.core.mapping.Queryable;
 import org.springframework.data.mongodb.core.mapping.RangeEncrypted;
 
+@Document(collection = "employees")
 public record Employee(
         @Id
         String id,

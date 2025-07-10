@@ -1,4 +1,4 @@
-package com.mongodb.config;
+package com.mongodb.db;
 
 import static org.springframework.data.mongodb.core.schema.JsonSchemaProperty.*;
 import static org.springframework.data.mongodb.core.schema.QueryCharacteristics.*;
@@ -73,9 +73,6 @@ public class MongoConfig implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
         var mongoTemplate = mongoTemplate(mongoClient());
-
-        mongoClient().getDatabase("encryption").drop();
-        mongoClient().getDatabase("hrsystem").drop();
 
         if (mongoTemplate.collectionExists(encryptedCollectionName)) {
             return;

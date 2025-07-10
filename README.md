@@ -23,7 +23,6 @@ The result is a secure document model where sensitive fields (like `ssn`, `pin`,
 | `age`    | Integer  | ✅        | ✅         | Range (int)    | Encrypted and queryable with range filters (`<`, `>`)  |
 | `salary` | double   | ✅        | ✅         | Range (decimal)| Encrypted and queryable with decimal range (precision: 2) |
 
-
 ## Prerequisites
 Before running this project, make sure you have:
 
@@ -61,6 +60,31 @@ $env:MONGODB_URI="<YOUR_CONNECTION_STRING>"; $env:CRYPT_PATH="<PATH_TO_AUTOMATIC
 
 ```bash
 mvn spring-boot:run
+```
+
+
+## Sample Data
+
+When the application starts, it automatically creates a collection called **`employees`** in the **`hrsystem`**
+database (only if it's empty) and inserts 6 sample employees. You can use these records to test the API directly in Swagger or with `.http` files.
+
+| Name    | PIN | SSN | Age | Salary |
+|---------|-----|-----|-----|--------|
+| Ricardo | 001 | 1   | 36  | 1501   |
+| Maria   | 002 | 2   | 28  | 4200   |
+| Karen   | 003 | 3   | 42  | 2800   |
+| Mark    | 004 | 4   | 22  | 2100   |
+| Pedro   | 005 | 5   | 50  | 4000   |
+| Joana   | 006 | 6   | 50  | 99000  |
+
+
+You can now try endpoints like:
+
+```http
+GET /employees
+GET /employees/ssn/1
+GET /employees/filter/age-less-than?age=30
+GET /employees/filter/salary-greater-than?salary=3500
 ```
 
 ## API Documentation – Swagger UI
