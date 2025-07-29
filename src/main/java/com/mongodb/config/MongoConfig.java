@@ -1,4 +1,4 @@
-package com.mongodb.db;
+package com.mongodb.config;
 
 import static org.springframework.data.mongodb.core.schema.JsonSchemaProperty.*;
 import static org.springframework.data.mongodb.core.schema.QueryCharacteristics.*;
@@ -10,7 +10,6 @@ import java.util.Map;
 import org.bson.BsonBinary;
 import org.bson.Document;
 import org.bson.UuidRepresentation;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
@@ -38,26 +37,13 @@ import com.mongodb.domain.LocalCMKService;
 @Configuration
 public class MongoConfig implements ApplicationRunner {
 
-    @Value("${app.mongodb.cryptSharedLibPath}")
-    private String cryptSharedLibPath;
-
-    @Value("${app.mongodb.encryptedCollectionName}")
-    private String encryptedCollectionName;
-
-    @Value("${app.mongodb.encryptedDatabaseName}")
-    private String encryptedDatabaseName;
-
-    @Value("${app.mongodb.keyVaultNamespace}")
-    private String keyVaultNamespace;
-
-    @Value("${app.mongodb.uri}")
-    private String uri;
-
+    private final AppProperties appProperties;
     private Map<String, Map<String, Object>> kmsProviderCredentials;
     private final LocalCMKService localCMKService;
 
-    MongoConfig(LocalCMKService localCMKService) {
+    MongoConfig(LocalCMKService localCMKService, AppProperties appProperties) {
         this.localCMKService = localCMKService;
+        this.appProperties = appProperties;
     }
 
     @Bean
@@ -67,22 +53,22 @@ public class MongoConfig implements ApplicationRunner {
 
     @Bean
     MongoOperations mongoTemplate(MongoClient mongoClient) {
-        return new MongoTemplate(mongoClient, encryptedDatabaseName);
+        return new MongoTemplate(mongoClient, appProperties.encryptedDatabaseName);
     }
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
         var mongoTemplate = mongoTemplate(mongoClient());
 
-        if (mongoTemplate.collectionExists(encryptedCollectionName)) {
+        if (mongoTemplate.collectionExists(appProperties.encryptedCollectionName)) {
             return;
         }
 
         ClientEncryptionSettings encryptionSettings = ClientEncryptionSettings.builder()
                 .keyVaultMongoClientSettings(MongoClientSettings.builder()
-                        .applyConnectionString(new com.mongodb.ConnectionString(uri))
+                        .applyConnectionString(new com.mongodb.ConnectionString(appProperties.uri))
                         .build())
-                .keyVaultNamespace(keyVaultNamespace)
+                .keyVaultNamespace(appProperties.keyVaultNamespace)
                 .kmsProviders(kmsProviderCredentials)
                 .build();
 
@@ -119,7 +105,7 @@ public class MongoConfig implements ApplicationRunner {
 
     private MongoClientSettings getMongoClientSettings() throws IOException {
         return MongoClientSettings.builder()
-                .applyConnectionString(new ConnectionString(uri))
+                .applyConnectionString(new ConnectionString(appProperties.uri))
                 .autoEncryptionSettings(getAutoEncryptionSettings())
                 .uuidRepresentation(UuidRepresentation.STANDARD)
                 .build();
@@ -129,7 +115,7 @@ public class MongoConfig implements ApplicationRunner {
         kmsProviderCredentials = localCMKService.getKmsProviderCredentials();
 
         return AutoEncryptionSettings.builder()
-                .keyVaultNamespace(keyVaultNamespace)
+                .keyVaultNamespace(appProperties.keyVaultNamespace)
                 .extraOptions(createExtraOptions())
                 .kmsProviders(kmsProviderCredentials)
                 .build();
@@ -137,7 +123,7 @@ public class MongoConfig implements ApplicationRunner {
 
     private Map<String, Object> createExtraOptions() {
         Map<String, Object> extraOptions = new HashMap<>();
-        extraOptions.put("cryptSharedLibPath", cryptSharedLibPath);
+        extraOptions.put("cryptSharedLibPath", appProperties.cryptSharedLibPath);
         return extraOptions;
     }
 }
