@@ -1,13 +1,9 @@
 package com.mongodb.config;
 
-import static org.springframework.data.mongodb.core.schema.JsonSchemaProperty.*;
-import static org.springframework.data.mongodb.core.schema.QueryCharacteristics.*;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.bson.BsonBinary;
 import org.bson.Document;
 import org.bson.UuidRepresentation;
 import org.springframework.boot.ApplicationArguments;
@@ -35,13 +31,12 @@ import com.mongodb.domain.Employee;
 import com.mongodb.domain.LocalCMKService;
 
 @Configuration
-public class MongoConfig implements ApplicationRunner {
+public class MongoEncryptionConfiguration implements ApplicationRunner {
 
     private final AppProperties appProperties;
-    private Map<String, Map<String, Object>> kmsProviderCredentials;
-    private final LocalCMKService localCMKService;
+	private final LocalCMKService localCMKService;
 
-    MongoConfig(LocalCMKService localCMKService, AppProperties appProperties) {
+    MongoEncryptionConfiguration(LocalCMKService localCMKService, AppProperties appProperties) {
         this.localCMKService = localCMKService;
         this.appProperties = appProperties;
     }
@@ -60,47 +55,46 @@ public class MongoConfig implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
         var mongoTemplate = mongoTemplate(mongoClient());
 
-        if (mongoTemplate.collectionExists(appProperties.encryptedCollectionName)) {
-            return;
-        }
-
-        ClientEncryptionSettings encryptionSettings = ClientEncryptionSettings.builder()
-                .keyVaultMongoClientSettings(MongoClientSettings.builder()
-                        .applyConnectionString(new com.mongodb.ConnectionString(appProperties.uri))
-                        .build())
-                .keyVaultNamespace(appProperties.keyVaultNamespace)
-                .kmsProviders(kmsProviderCredentials)
-                .build();
-
-        try (ClientEncryption clientEncryption = ClientEncryptions.create(encryptionSettings)) {
-//            manualCollectionSetup(clientEncryption, mongoTemplate);
-            derivedCollection(mongoTemplate, clientEncryption);
+        if (! mongoTemplate.collectionExists(appProperties.encryptedCollectionName)) {
+            initializeEncryptedCollection(mongoTemplate);
         }
     }
 
-    private void derivedCollection(MongoOperations template, ClientEncryption clientEncryption) {
+    private void initializeEncryptedCollection(MongoOperations template) throws IOException {
+        try (ClientEncryption clientEncryption = createClientEncryption()) {
+            createCollectionFromSchema(template, clientEncryption);
+        }
+    }
 
-        MongoJsonSchema employeeSchema = MongoJsonSchemaCreator.create(new MongoMappingContext())
+    private ClientEncryption createClientEncryption() throws IOException {
+        var encryptionSettings = ClientEncryptionSettings.builder()
+                .keyVaultMongoClientSettings(
+                        MongoClientSettings.builder()
+                                .applyConnectionString(new ConnectionString(appProperties.uri))
+                                .build())
+                .keyVaultNamespace(appProperties.keyVaultNamespace)
+                .kmsProviders(localCMKService.getKmsProviderCredentials())
+                .build();
+
+        return ClientEncryptions.create(encryptionSettings);
+    }
+
+    private void createCollectionFromSchema(MongoOperations template, ClientEncryption clientEncryption) {
+        MongoJsonSchema schema = MongoJsonSchemaCreator.create(new MongoMappingContext())
                 .filter(MongoJsonSchemaCreator.encryptedOnly())
                 .createSchemaFor(Employee.class);
 
-        Document encryptedFields = CollectionOptions.encryptedCollection(employeeSchema)
+        Document encryptedFields = CollectionOptions.encryptedCollection(schema)
                 .getEncryptedFieldsOptions()
                 .map(CollectionOptions.EncryptedFieldsOptions::toDocument)
                 .orElseThrow();
 
-        template.execute(db -> clientEncryption.createEncryptedCollection(db, template.getCollectionName(Employee.class), new CreateCollectionOptions()
-				.encryptedFields(encryptedFields), new CreateEncryptedCollectionParams("local")));
-    }
-
-    private void manualCollectionSetup(ClientEncryption clientEncryption, MongoOperations mongoTemplate) {
-        BsonBinary dkSalary = clientEncryption.createDataKey("local", new com.mongodb.client.model.vault.DataKeyOptions());
-
-        CollectionOptions collectionOptions = CollectionOptions.encryptedCollection(options -> options
-                .queryable(encrypted(float64("salary")).algorithm("Range").keyId(dkSalary.asUuid()), range().contention(0).precision(2).min(0.0).max(9999999.0))
-        );
-
-        mongoTemplate.createCollection(Employee.class, collectionOptions);
+        template.execute(db -> clientEncryption.createEncryptedCollection(
+                db,
+                template.getCollectionName(Employee.class),
+                new CreateCollectionOptions().encryptedFields(encryptedFields),
+                new CreateEncryptedCollectionParams("local")
+        ));
     }
 
     private MongoClientSettings getMongoClientSettings() throws IOException {
@@ -112,7 +106,7 @@ public class MongoConfig implements ApplicationRunner {
     }
 
     private AutoEncryptionSettings getAutoEncryptionSettings() throws IOException {
-        kmsProviderCredentials = localCMKService.getKmsProviderCredentials();
+		Map<String, Map<String, Object>> kmsProviderCredentials = localCMKService.getKmsProviderCredentials();
 
         return AutoEncryptionSettings.builder()
                 .keyVaultNamespace(appProperties.keyVaultNamespace)
@@ -127,3 +121,32 @@ public class MongoConfig implements ApplicationRunner {
         return extraOptions;
     }
 }
+
+// TODO: Alternative way to create the encrypted collection manually
+/*
+ * The method below shows a manual approach to define the encryptedFields configuration
+ * programmatically, using a Data Encryption Key (DEK) generated at runtime.
+ *
+ * While we use the derived schema approach in this example,
+ * this method is useful when you want full control over field-level encryption metadata.
+ */
+/*
+private void manualCollectionSetup(ClientEncryption clientEncryption, MongoOperations mongoTemplate) {
+    BsonBinary dkSalary = clientEncryption.createDataKey("local", new DataKeyOptions());
+
+    CollectionOptions collectionOptions = CollectionOptions.encryptedCollection(options -> options
+        .queryable(
+            encrypted(float64("salary"))
+                .algorithm("Range")
+                .keyId(dkSalary.asUuid()),
+            range().contention(0).precision(2).min(0.0).max(9999999.0)
+        )
+    );
+
+    mongoTemplate.createCollection(Employee.class, collectionOptions);
+}
+*/
+
+
+
+
