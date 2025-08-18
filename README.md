@@ -2,7 +2,7 @@
 
 This repository demonstrates how to integrate **MongoDB Queryable Encryption** with **Spring Data MongoDB**. 
 You can read more on
-- link to be defined
+- [Queryable Encryption With Spring Data MongoDB: How to Query Encrypted Fields](https://dev.to/mongodb/queryable-encryption-with-spring-data-mongodb-how-to-query-encrypted-fields-2ccc) 
 
 
 ## About the Project
